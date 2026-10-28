@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080f20">
+<title>THE CHAPTER — Ahmed &amp; Sammar</title>
+<style>
+  :root {
+    --night: #080f20;
+    --night-2: #101d35;
+    --ivory: #f3f0e8;
+    --silver: #c7d5e8;
+    --ice: #91c9ef;
+    --muted: #a7b4c8;
+    --line: rgba(199, 213, 232, .32);
+    --ease: cubic-bezier(.2,.75,.2,1);
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--night); scroll-behavior: smooth; }
+  body {
+    margin: 0; min-height: 100%; color: var(--ivory);
+    background: var(--night); font-family: Georgia, "Times New Roman", serif;
+    overflow-x: hidden; -webkit-font-smoothing: antialiased;
+  }
+  button, a { -webkit-tap-highlight-color: transparent; }
+  button { font: inherit; }
+  button:focus-visible, a:focus-visible { outline: 2px solid var(--ice); outline-offset: 5px; }
+  .experience { position: relative; min-height: 100svh; overflow: clip; isolation: isolate; }
+  .ambient {
+    position: fixed; inset: 0; z-index: -3; pointer-events: none;
+    background:
+      radial-gradient(ellipse at 50% 48%, rgba(38,76,119,.35), transparent 38%),
+      radial-gradient(ellipse at 12% 80%, rgba(41,75,112,.17), transparent 32%),
+      linear-gradient(155deg, #050914 0%, #0b1428 48%, #101d35 100%);
+  }
+  .ambient::after {
+    content:""; position:absolute; inset:-20%;
+    background: radial-gradient(circle at 50% 50%, transparent 0 25%, rgba(1,4,12,.32) 75%);
+    animation: breathe 12s ease-in-out infinite alternate;
+  }
+  .grain {
+    position: fixed; inset: 0; z-index: 30; pointer-events:none; opacity:.09;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.2'/%3E%3C/svg%3E");
+    mix-blend-mode: soft-light;
+  }
+  .scene {
+    position: relative; display: none; min-height: 100svh; width:100%;
+    padding: max(26px, env(safe-area-inset-top)) 22px max(26px, env(safe-area-inset-bottom));
+    align-items:center; justify-content:center; text-align:center; overflow:hidden;
+  }
+  .scene.active { display:flex; animation: sceneIn 1s var(--ease) both; }
+  .scene-inner { width:min(100%, 760px); margin:auto; position:relative; z-index:2; }
+  .eyebrow {
+    color:var(--silver); font: 10px/1.5 Arial,sans-serif; letter-spacing:.34em;
+    text-transform:uppercase; margin:0 0 22px;
+  }
+  .micro { color:var(--muted); font:10px/1.6 Arial,sans-serif; letter-spacing:.12em; }
+  .serif-title { font-weight:400; letter-spacing:-.045em; line-height:.98; margin:0; }
+  .intro-title { font-size:clamp(48px, 13vw, 102px); }
+  .intro-title span { display:block; font-style:italic; color:var(--silver); }
+  .intro-copy { color:#c4cedd; font-size:clamp(15px, 3.8vw, 19px); line-height:1.8; margin:26px auto 34px; max-width:370px; }
+  .primary {
+    min-height:50px; padding:0 25px; border:1px solid rgba(199,213,232,.58);
+    color:var(--ivory); background:rgba(255,255,255,.035); cursor:pointer;
+    letter-spacing:.16em; text-transform:uppercase; font:10px Arial,sans-serif;
+    transition: background .3s, border-color .3s, transform .3s;
+  }
+  .primary:hover { background:rgba(145,201,239,.12); border-color:var(--ice); transform:translateY(-2px); }
+  .tiny-orbit { width: min(52vw, 220px); aspect-ratio:1; margin:0 auto 34px; position:relative; }
+  .tiny-orbit::before,.tiny-orbit::after { content:""; position:absolute; border:1px solid var(--line); border-radius:50%; inset:8%; animation: rotate 22s linear infinite; }
+  .tiny-orbit::after { inset:23%; border-style:dashed; animation-direction:reverse; animation-duration:32s; }
+  .tiny-orbit .core { position:absolute; width:12px; height:12px; border-radius:50%; background:#e8f5ff; box-shadow:0 0 30px 8px rgba(145,201,239,.35); top:50%; left:50%; transform:translate(-50%,-50%); }
+  .tiny-orbit .spark { position:absolute; width:5px;height:5px;background:var(--ice);border-radius:50%;left:18%;top:30%;box-shadow:0 0 18px var(--ice); }
+  .scene-no { position:absolute; top:max(20px,env(safe-area-inset-top)); left:22px; color:rgba(199,213,232,.45); font:9px Arial,sans-serif; letter-spacing:.2em; }
+  .sound-toggle {
+    position:fixed; z-index:40; right:16px; bottom:max(16px,env(safe-area-inset-bottom));
+    display:none; align-items:center; gap:8px; padding:11px 13px; border-radius:99px;
+    border:1px solid var(--line); background:rgba(8,15,32,.78); backdrop-filter:blur(12px);
+    color:var(--silver); font:9px Arial,sans-serif; letter-spacing:.12em; cursor:pointer;
+  }
+  .sound-toggle.visible { display:flex; }
+  .sound-dot { width:6px;height:6px;border-radius:50%;background:var(--ice); box-shadow:0 0 10px var(--ice); }
+  /* Scene 2: architectural passage */
+  .portal-scene { perspective:1000px; }
+  .portal-kicker { margin-bottom:14px; }
+  .portal-stage { height:min(49vh,430px); min-height:260px; width:min(84vw,380px); margin:0 auto 28px; position:relative; perspective:1000px; }
+  .portal-halo { position:absolute; width:74%; aspect-ratio:1; border-radius:50%; top:12%; left:13%; background:radial-gradient(circle,rgba(111,174,223,.19),rgba(61,107,155,.06) 48%,transparent 70%); filter:blur(6px); }
+  .portal-floor { position:absolute; height:23%; width:120%; left:-10%; bottom:0; background:radial-gradient(ellipse,rgba(137,180,219,.19),transparent 70%); transform:rotateX(65deg); }
+  .portal {
+    position:absolute; inset:4% 12% 9%; transform-style:preserve-3d; transition:transform 1.4s var(--ease);
+  }
+  .portal-outer,.portal-inner {
+    position:absolute; inset:0; border:1px solid rgba(205,222,240,.76);
+    clip-path:polygon(0 100%,0 27%,10% 8%,50% 0,90% 8%,100% 27%,100% 100%);
+    box-shadow:inset 0 0 26px rgba(141,194,235,.06),0 0 28px rgba(141,194,235,.06);
+  }
+  .portal-inner { inset:7% 8% 0; border-color:rgba(205,222,240,.37); }
+  .portal-glass {
+    position:absolute; inset:8% 12% 1%;
+    clip-path:polygon(0 100%,0 28%,12% 8%,50% 0,88% 8%,100% 28%,100% 100%);
+    background:linear-gradient(180deg,rgba(127,185,229,.06),rgba(9,17,34,.12) 58%,rgba(147,198,238,.08));
+    transform-origin:center; transition:transform 1.5s var(--ease),opacity 1s;
+  }
+  .portal.open .portal-glass { transform:rotateY(-76deg) translateX(-18%); opacity:.3; }
+  .portal.open .portal-outer { filter:drop-shadow(0 0 18px rgba(145,201,239,.28)); }
+  .portal-rune { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:var(--silver); font-size:clamp(28px,7vw,42px); opacity:.8; }
+  .portal-copy { font-size:clamp(16px,4vw,20px); color:#d5deea; line-height:1.8; margin:0 auto 22px; }
+  /* Scene 3: invitation reveal */
+  .invite-panel { position:relative; width:min(100%,580px); margin:0 auto; padding:clamp(25px,7vw,54px) clamp(20px,7vw,58px); border:1px solid rgba(199,213,232,.38); background:linear-gradient(145deg,rgba(242,240,232,.97),rgba(218,226,235,.94)); color:#152139; box-shadow:0 30px 90px rgba(0,0,0,.24); }
+  .invite-panel::before { content:""; position:absolute; inset:8px; border:1px solid rgba(29,49,77,.17); pointer-events:none; }
+  .invite-panel .eyebrow { color:#62748b; margin-bottom:22px; }
+  .invite-title { font-size:clamp(37px,10vw,68px); line-height:1.04; letter-spacing:-.055em; margin:0; font-weight:400; }
+  .amp { color:#6687a7; font-style:italic; padding:0 .08em; }
+  .invite-sub { margin:20px auto 26px; color:#52637a; font-size:14px; line-height:1.8; max-width:360px; }
+  .fine-line { width:70px; height:1px; background:#91a6bd; margin:24px auto; }
+  .event-grid { display:grid; grid-template-columns:1fr; gap:14px; text-align:center; margin:0 auto 26px; }
+  .event-cell { padding:10px 0; border-top:1px solid rgba(29,49,77,.16); }
+  .event-label { color:#718198; font:9px Arial,sans-serif; letter-spacing:.22em; text-transform:uppercase; margin-bottom:7px; }
+  .event-value { color:#182b46; font-size:17px; line-height:1.5; }
+  .event-value small { display:block; font:11px/1.7 Arial,sans-serif; color:#60718a; margin-top:3px; }
+  .invite-actions { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; }
+  .dark-button { display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 17px; text-decoration:none; border:1px solid #263d5a; color:#f5f4ef; background:#14233b; font:10px Arial,sans-serif; letter-spacing:.08em; transition:transform .25s,background .25s; }
+  .dark-button.secondary { color:#14233b; background:transparent; }
+  .dark-button:hover { transform:translateY(-2px); background:#294463; color:#fff; }
+  .dark-button.secondary:hover { color:#14233b; background:rgba(20,35,59,.07); }
+  /* Scene 4: countdown */
+  .final-title { font-size:clamp(42px,11vw,78px); }
+  .final-title em { display:block; font-weight:400; color:var(--silver); }
+  .final-copy { max-width:440px; margin:22px auto 28px; line-height:1.8; color:#c4cedd; font-size:16px; }
+  .countdown { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; width:min(100%,500px); margin:28px auto 32px; }
+  .count-cell { padding:17px 4px 14px; border:1px solid rgba(199,213,232,.24); background:rgba(255,255,255,.025); }
+  .count-number { display:block; font-size:clamp(24px,7vw,40px); font-variant-numeric:tabular-nums; color:#edf5ff; letter-spacing:-.04em; }
+  .count-label { display:block; margin-top:8px; color:#9eafc6; font:8px Arial,sans-serif; letter-spacing:.14em; text-transform:uppercase; }
+  .final-mark { width:58px; height:58px; border:1px solid rgba(199,213,232,.5); border-radius:50%; margin:0 auto 24px; display:grid; place-items:center; color:var(--silver); font-size:20px; }
+  .closing { margin-top:34px; color:#a8b9ce; font-style:italic; font-size:16px; }
+  .progress { position:fixed; z-index:35; top:0; left:0; height:2px; width:0; background:linear-gradient(90deg,#6f9cc7,#d8e9f8); transition:width .7s var(--ease); }
+  .nav { position:fixed; z-index:35; bottom:max(18px,env(safe-area-inset-bottom)); left:16px; display:none; gap:7px; }
+  .nav.visible { display:flex; }
+  .nav button { width:31px;height:31px;border:1px solid rgba(199,213,232,.25);border-radius:50%;color:#afc0d6;background:rgba(8,15,32,.68);font:9px Arial,sans-serif;cursor:pointer; }
+  .nav button[aria-current="step"] { background:var(--silver); color:var(--night); border-color:var(--silver); }
+  .scene-footer { margin-top:28px; color:rgba(199,213,232,.45); font:8px Arial,sans-serif; letter-spacing:.22em; }
+  @keyframes sceneIn { from {opacity:0; transform:translateY(16px) scale(.99)} to {opacity:1;transform:none} }
+  @keyframes rotate { to { transform:rotate(360deg) } }
+  @keyframes breathe { to { transform:scale(1.12) translateY(-1.5%); opacity:.7 } }
+  @media (min-width:650px) {
+    .scene { padding-left:40px; padding-right:40px; }
+    .event-grid { grid-template-columns:1fr 1fr; gap:0 24px; }
+    .event-cell:nth-child(2) { border-top:1px solid rgba(29,49,77,.16); }
+    .event-cell:last-child { grid-column:1/-1; }
+    .portal-stage { height:420px; }
+  }
+  @media (max-height:700px) and (min-width:650px) {
+    .scene { padding-top:22px; padding-bottom:22px; }
+    .portal-stage { height:300px; min-height:250px; }
+    .tiny-orbit { width:140px; margin-bottom:18px; }
+    .intro-copy { margin:16px auto 22px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,*::before,*::after { animation-duration:.01ms!important; animation-iteration-count:1!important; scroll-behavior:auto!important; transition-duration:.01ms!important; }
+  }
+</style>
+</head>
+<body>
+<div class="experience" id="experience">
+  <div class="ambient"></div>
+  <div class="grain"></div>
+  <div class="progress" id="progress"></div>
+
+  <!--
+    EVENT DATA — edit this section only to customize the invitation.
+    Date/time are local to the guest's device. The venue URL is supplied by the couple.
+  -->
+  <script id="event-data" type="application/json">
+  {
+    "groom": "Ahmed",
+    "bride": "Sammar",
+    "date": "2026-11-06T20:00:00",
+    "timeLabel": "8:00 PM",
+    "venue": "Nadi Dobet Al Naql — Moonlight Hall",
+    "venueArabic": "نادي ضباط النقل — قاعة مون لايت",
+    "mapUrl": "https://maps.app.goo.gl/4z7uu4vWteNuJK2f6",
+    "whatsappNumber": "",
+    "whatsappMessage": "I’m happy to celebrate Ahmed & Sammar’s wedding. Congratulations!"
+  }
+  </script>
+
+  <main>
+    <!-- SCENE 1: THE BEGINNING -->
+    <section class="scene active" id="scene-1" aria-labelledby="intro-title">
+      <span class="scene-no">01 / 04</span>
+      <div class="scene-inner">
+        <div class="tiny-orbit" aria-hidden="true">
+          <span class="core"></span><span class="spark"></span>
+        </div>
+        <p class="eyebrow">A NEW STORY IS ABOUT TO BEGIN</p>
+        <h1 class="serif-title intro-title" id="intro-title">Every story<span>has a beginning.</span></h1>
+        <p class="intro-copy">Some moments become memories.<br>Some memories become forever.</p>
+        <button class="primary" id="beginBtn" type="button">Enter the story <span aria-hidden="true">↗</span></button>
+        <p class="scene-footer">AN INVITATION TO A NEW CHAPTER</p>
+      </div>
+    </section>
+
+    <!-- SCENE 2: THE PASSAGE -->
+    <section class="scene portal-scene" id="scene-2" aria-labelledby="portal-title">
+      <span class="scene-no">02 / 04</span>
+      <div class="scene-inner">
+        <p class="eyebrow portal-kicker">A MOMENT THAT CHANGES EVERYTHING</p>
+        <div class="portal-stage" aria-hidden="true">
+          <div class="portal-halo"></div><div class="portal-floor"></div>
+          <div class="portal" id="portal">
+            <div class="portal-outer"></div><div class="portal-inner"></div><div class="portal-glass"></div>
+            <div class="portal-rune">✧</div>
+          </div>
+        </div>
+        <h2 class="serif-title" id="portal-title" style="font-size:clamp(34px,8vw,58px)">Step into forever.</h2>
+        <p class="portal-copy">A new chapter. Two hearts. One beautiful beginning.</p>
+        <button class="primary" id="openPortalBtn" type="button">Open the passage <span aria-hidden="true">↗</span></button>
+      </div>
+    </section>
+
+    <!-- SCENE 3: THE INVITATION -->
+    <section class="scene" id="scene-3" aria-labelledby="invite-title">
+      <span class="scene-no">03 / 04</span>
+      <div class="scene-inner">
+        <article class="invite-panel">
+          <p class="eyebrow">YOU ARE WARMLY INVITED</p>
+          <h2 class="invite-title" id="invite-title"><span id="groomName">Ahmed</span><br><span class="amp">&amp;</span><br><span id="brideName">Sammar</span></h2>
+          <p class="invite-sub">With joy in our hearts, we invite you to join us as we begin our next chapter together.</p>
+          <div class="fine-line"></div>
+          <div class="event-grid">
+            <div class="event-cell">
+              <div class="event-label">THE DATE</div>
+              <div class="event-value" id="dateLabel">Friday, November 6, 2026</div>
+            </div>
+            <div class="event-cell">
+              <div class="event-label">THE TIME</div>
+              <div class="event-value" id="timeLabel">8:00 PM</div>
+            </div>
+            <div class="event-cell">
+              <div class="event-label">THE VENUE</div>
+              <div class="event-value" id="venueLabel">Nadi Dobet Al Naql — Moonlight Hall<small>نادي ضباط النقل — قاعة مون لايت</small></div>
+            </div>
+          </div>
+          <div class="invite-actions">
+            <a class="dark-button" id="mapButton" href="https://maps.app.goo.gl/4z7uu4vWteNuJK2f6" target="_blank" rel="noopener noreferrer">↗ &nbsp; OPEN LOCATION</a>
+            <a class="dark-button secondary" id="rsvpButton" href="#" target="_blank" rel="noopener noreferrer">♡ &nbsp; RSVP ON WHATSAPP</a>
+          </div>
+        </article>
+        <p class="scene-footer">YOUR PRESENCE WILL MAKE IT COMPLETE</p>
+      </div>
+    </section>
+
+    <!-- SCENE 4: THE CELEBRATION -->
+    <section class="scene" id="scene-4" aria-labelledby="final-title">
+      <span class="scene-no">04 / 04</span>
+      <div class="scene-inner">
+        <div class="final-mark" aria-hidden="true">✧</div>
+        <p class="eyebrow">COUNTING DOWN TO FOREVER</p>
+        <h2 class="serif-title final-title" id="final-title">The next chapter<em>starts soon.</em></h2>
+        <p class="final-copy">We can’t wait to share this unforgettable evening with you.</p>
+        <div class="countdown" id="countdown" aria-label="Time until the wedding">
+          <div class="count-cell"><span class="count-number" id="days">000</span><span class="count-label">Days</span></div>
+          <div class="count-cell"><span class="count-number" id="hours">00</span><span class="count-label">Hours</span></div>
+          <div class="count-cell"><span class="count-number" id="minutes">00</span><span class="count-label">Minutes</span></div>
+          <div class="count-cell"><span class="count-number" id="seconds">00</span><span class="count-label">Seconds</span></div>
+        </div>
+        <div class="invite-actions">
+          <a class="dark-button" id="finalMapButton" href="https://maps.app.goo.gl/4z7uu4vWteNuJK2f6" target="_blank" rel="noopener noreferrer">↗ &nbsp; FIND THE VENUE</a>
+          <button class="dark-button secondary" id="replayBtn" type="button">↻ &nbsp; REPLAY THE STORY</button>
+        </div>
+        <p class="closing">“Your presence is the beginning of our best memories.”</p>
+        <p class="scene-footer" id="finalNames">AHMED &amp; SAMMAR · THE CHAPTER</p>
+      </div>
+    </section>
+  </main>
+
+  <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="false" aria-label="Toggle ambient music">
+    <span class="sound-dot"></span><span id="soundText">SOUND ON</span>
+  </button>
+  <nav class="nav" id="sceneNav" aria-label="Invitation scenes">
+    <button type="button" data-scene="0" aria-label="Go to beginning" aria-current="step">01</button>
+    <button type="button" data-scene="1" aria-label="Go to passage">02</button>
+    <button type="button" data-scene="2" aria-label="Go to invitation">03</button>
+    <button type="button" data-scene="3" aria-label="Go to countdown">04</button>
+  </nav>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const data = JSON.parse(document.getElementById("event-data").textContent);
+  const scenes = [...document.querySelectorAll(".scene")];
+  const progress = document.getElementById("progress");
+  const nav = document.getElementById("sceneNav");
+  const soundToggle = document.getElementById("soundToggle");
+  const soundText = document.getElementById("soundText");
+  const portal = document.getElementById("portal");
+  let currentScene = 0;
+  let audioContext = null;
+  let masterGain = null;
+  let musicStarted = false;
+  let musicEnabled = true;
+  let musicTimer = null;
+  let notes = [];
+
+  // Populate all event details from the single EVENT DATA block above.
+  document.getElementById("groomName").textContent = data.groom;
+  document.getElementById("brideName").textContent = data.bride;
+  document.getElementById("timeLabel").textContent = data.timeLabel;
+  document.getElementById("venueLabel").replaceChildren(
+    document.createTextNode(data.venue),
+    Object.assign(document.createElement("small"), {textContent: data.venueArabic})
+  );
+  document.getElementById("mapButton").href = data.mapUrl;
+  document.getElementById("finalMapButton").href = data.mapUrl;
+  document.getElementById("finalNames").textContent = `${data.groom.toUpperCase()} & ${data.bride.toUpperCase()} · THE CHAPTER`;
+  const eventDate = new Date(data.date);
+  document.getElementById("dateLabel").textContent = new Intl.DateTimeFormat("en-US", {
+    weekday:"long", month:"long", day:"numeric", year:"numeric"
+  }).format(eventDate);
+  const rsvp = document.getElementById("rsvpButton");
+  if (data.whatsappNumber) {
+    const message = encodeURIComponent(data.whatsappMessage || `I’ll celebrate ${data.groom} & ${data.bride}'s wedding. Congratulations!`);
+    rsvp.href = `https://wa.me/${data.whatsappNumber.replace(/\D/g, "")}?text=${message}`;
+  } else {
+    rsvp.href = `https://wa.me/?text=${encodeURIComponent(data.whatsappMessage)}`;
+  }
+
+  function goToScene(index) {
+    const target = Math.max(0, Math.min(scenes.length - 1, index));
+    scenes[currentScene].classList.remove("active");
+    currentScene = target;
+    scenes[currentScene].classList.add("active");
+    progress.style.width = `${((currentScene + 1) / scenes.length) * 100}%`;
+    nav.classList.toggle("visible", currentScene > 0);
+    soundToggle.classList.add("visible");
+    [...nav.querySelectorAll("button")].forEach((button, i) => {
+      if (i === currentScene) button.setAttribute("aria-current", "step");
+      else button.removeAttribute("aria-current");
+    });
+    if (currentScene === 1) {
+      portal.classList.remove("open");
+      document.getElementById("openPortalBtn").disabled = false;
+    }
+  }
+
+  // A small original ambient soundscape generated in-browser; no external audio file required.
+  function startMusic() {
+    if (musicStarted) {
+      if (audioContext && audioContext.state === "suspended") audioContext.resume().catch(() => {});
+      return;
+    }
+    musicStarted = true;
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) { soundText.textContent = "SOUND UNAVAILABLE"; return; }
+      audioContext = new AudioCtx();
+      masterGain = audioContext.createGain();
+      masterGain.gain.value = 0;
+      masterGain.connect(audioContext.destination);
+      const now = audioContext.currentTime;
+      masterGain.gain.setTargetAtTime(musicEnabled ? 0.13 : 0, now, 1.4);
+      // Gentle, original layered tones — not a recording of an existing song.
+      const chordSets = [
+        [220.00, 261.63, 329.63],
+        [196.00, 246.94, 293.66],
+        [174.61, 220.00, 261.63],
+        [196.00, 246.94, 329.63]
+      ];
+      const pad = audioContext.createGain();
+      pad.gain.value = 0.18;
+      pad.connect(masterGain);
+      chordSets.flat().forEach((frequency, i) => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = i % 3 === 0 ? "sine" : "triangle";
+        osc.frequency.value = frequency;
+        gain.gain.value = 0.022 / (1 + (i % 3));
+        osc.connect(gain); gain.connect(pad);
+        osc.start();
+        notes.push({osc, gain});
+      });
+      let chordIndex = 0;
+      musicTimer = window.setInterval(() => {
+        if (!audioContext || !masterGain) return;
+        chordIndex = (chordIndex + 1) % chordSets.length;
+        const base = chordSets[chordIndex];
+        notes.forEach((note, i) => {
+          const targetFreq = base[i % base.length] * (i >= 9 ? 2 : 1);
+          note.osc.frequency.setTargetAtTime(targetFreq, audioContext.currentTime, 1.1);
+        });
+      }, 5200);
+      soundText.textContent = musicEnabled ? "SOUND ON" : "SOUND OFF";
+    } catch (error) {
+      soundText.textContent = "SOUND UNAVAILABLE";
+    }
+  }
+
+  function setMusicEnabled(enabled) {
+    musicEnabled = enabled;
+    if (masterGain && audioContext) {
+      masterGain.gain.setTargetAtTime(enabled ? 0.13 : 0, audioContext.currentTime, .25);
+    }
+    soundToggle.setAttribute("aria-pressed", String(enabled));
+    soundText.textContent = enabled ? "SOUND ON" : "SOUND OFF";
+  }
+
+  document.getElementById("beginBtn").addEventListener("click", () => {
+    startMusic();
+    goToScene(1);
+  });
+  document.getElementById("openPortalBtn").addEventListener("click", () => {
+    startMusic();
+    portal.classList.add("open");
+    document.getElementById("openPortalBtn").disabled = true;
+    window.setTimeout(() => goToScene(2), 1050);
+  });
+  document.getElementById("replayBtn").addEventListener("click", () => {
+    portal.classList.remove("open");
+    goToScene(0);
+  });
+  soundToggle.addEventListener("click", () => {
+    startMusic();
+    setMusicEnabled(!musicEnabled);
+  });
+  nav.querySelectorAll("button").forEach(button => {
+    button.addEventListener("click", () => {
+      startMusic();
+      goToScene(Number(button.dataset.scene));
+    });
+  });
+
+  // Subtle pointer parallax on the portal, disabled for touch-first and reduced-motion users.
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reducedMotion && window.matchMedia("(pointer:fine)").matches) {
+    const portalStage = document.querySelector(".portal-stage");
+    portalStage.addEventListener("pointermove", event => {
+      if (portal.classList.contains("open")) return;
+      const rect = portalStage.getBoundingClientRect();
+      const x = (event.clientX - rect.left) / rect.width - .5;
+      const y = (event.clientY - rect.top) / rect.height - .5;
+      portal.style.transform = `rotateY(${x * 7}deg) rotateX(${-y * 5}deg)`;
+    });
+    portalStage.addEventListener("pointerleave", () => portal.style.transform = "");
+  }
+
+  function updateCountdown() {
+    const distance = eventDate.getTime() - Date.now();
+    if (!Number.isFinite(distance) || distance <= 0) {
+      document.getElementById("countdown").innerHTML = '<div class="count-cell" style="grid-column:1/-1"><span class="count-number" style="font-size:24px">Today is the day.</span><span class="count-label">LET THE CELEBRATION BEGIN</span></div>';
+      return;
+    }
+    const days = Math.floor(distance / 86400000);
+    const hours = Math.floor((distance % 86400000) / 3600000);
+    const minutes = Math.floor((distance % 3600000) / 60000);
+    const seconds = Math.floor((distance % 60000) / 1000);
+    document.getElementById("days").textContent = String(days).padStart(3, "0");
+    document.getElementById("hours").textContent = String(hours).padStart(2, "0");
+    document.getElementById("minutes").textContent = String(minutes).padStart(2, "0");
+    document.getElementById("seconds").textContent = String(seconds).padStart(2, "0");
+  }
+  updateCountdown();
+  window.setInterval(updateCountdown, 1000);
+  progress.style.width = "25%";
+})();
+</script>
+</body>
+</html>
